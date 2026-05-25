@@ -1,5 +1,7 @@
 #include <Arduino.h>
+#include <WiFi.h>
 #include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
+#include "wifi_config.h"
 
 const int ledPin = 2;
 
@@ -27,6 +29,7 @@ void sendBuffer(uint16_t (*buf)[PANEL_W]) {
       display->drawPixel(x, y, buf[y][x]);
 }
 
+// ---- Connects to WiFi and shows status on the panel ----
 void setup() {
   pinMode(ledPin, OUTPUT);
   HUB75_I2S_CFG mxconfig(64, 64, 1);   // width, height, chain length
@@ -35,13 +38,14 @@ void setup() {
 
   display = new MatrixPanel_I2S_DMA(mxconfig);
   display->begin();
-  display->setBrightness8(255);         // 0–255; orig 90
+  display->setBrightness8(120);         // 0–255; orig 90
   display->clearScreen();
+
+  connectWiFi(display);
 
   display->setTextSize(1);
   display->setTextColor(display->color565(255, 0, 0));
   display->setCursor(4, 20);
-  //display->print("HI");
   buildPineapple();                     // create the bitmap
   buildStrawberry();
   buildFace();
@@ -74,7 +78,7 @@ void loop() {
   sendBuffer(pineapple);                 // push it to the panel
   delay(timing);
   sendBuffer(face);                 // push it to the panel
-  delay(timing+2000);
+  delay(timing+1000);
   showMemory(display);                 // display heap usage stats
   delay(timing);
   /*
