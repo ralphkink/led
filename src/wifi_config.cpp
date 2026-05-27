@@ -50,6 +50,34 @@ void connectWiFi(MatrixPanel_I2S_DMA *display) {
     display->setCursor(2, 36);
     display->printf("RSSI %d", WiFi.RSSI());
     delay(3000);
+
+    // Sync clock via NTP — required for SAS token expiry in ASB requests.
+    // configTime() is async; wait until time() returns a plausible epoch value.
+    configTime(0, 0, "pool.ntp.org");
+    display->clearScreen();
+    display->setTextColor(display->color565(255, 200, 0));
+    display->setCursor(2, 2);
+    display->print("NTP sync");
+    int ntpWait = 0;
+    while (time(nullptr) < 1000000UL && ntpWait < 15) {
+      display->fillRect(0, 14, display->width(), 8, display->color565(0, 0, 0));
+      display->setTextColor(display->color565(160, 160, 160));
+      display->setCursor(2, 14);
+      display->printf("wait %ds", ntpWait);
+      delay(1000);
+      ntpWait++;
+    }
+    display->clearScreen();
+    display->setCursor(2, 2);
+    if (time(nullptr) >= 1000000UL) {
+      display->setTextColor(display->color565(0, 255, 80));
+      display->print("NTP OK");
+    } else {
+      display->setTextColor(display->color565(255, 40, 40));
+      display->print("NTP FAIL");
+    }
+    delay(1500);
+
   } else {
     display->setTextColor(display->color565(255, 40, 40));
     display->setCursor(2, 2);
