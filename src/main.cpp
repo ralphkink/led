@@ -62,7 +62,7 @@ void setup() {
 
   display = new MatrixPanel_I2S_DMA(mxconfig);
   display->begin();
-  display->setBrightness8(120);         // 0–255; orig 90
+  display->setBrightness8(20);         // 0–255; orig 90
   display->clearScreen();
 
   connectWiFi(display);
